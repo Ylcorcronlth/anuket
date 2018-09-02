@@ -88,4 +88,18 @@ public class Utils
 			return t*t*t*((6.0f*t - 15.0f)*t + 10.0f);
 		}
 	}
+
+	public static int Pow(int base_, int exponent) {
+		// Compute the integer power of an integer base.
+		int value = 1;
+		int magnitude = base_;
+		while (exponent > 0) {
+			if ((exponent & 1) > 0) {
+				value *= magnitude;
+			}
+			magnitude *= magnitude;
+			exponent >>= 1;
+		}
+		return value;
+	}
 }

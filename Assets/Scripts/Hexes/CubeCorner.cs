@@ -20,75 +20,74 @@ public class CubeCorner {
     };
 
     private static CubeCorner[] _Adjacent = {
-		new CubeCorner(2, -1, Direction.L),
-		new CubeCorner(1, 0, Direction.L),
-		new CubeCorner(1, -1, Direction.L),
-		new CubeCorner(-1, 1, Direction.R),
-		new CubeCorner(-2, 1, Direction.R),
-		new CubeCorner(-1, 0, Direction.R)
+		new CubeCorner(2, -1, CornerDirection.L),
+		new CubeCorner(1, 0, CornerDirection.L),
+		new CubeCorner(1, -1, CornerDirection.L),
+		new CubeCorner(-1, 1, CornerDirection.R),
+		new CubeCorner(-2, 1, CornerDirection.R),
+		new CubeCorner(-1, 0, CornerDirection.R)
     };
 
 	private CubeHex _hex;
-	private Direction _direction;
+	private CornerDirection _direction;
 
     // # Constructors
-	public CubeCorner(CubeHex hex, Direction direction) {
+	public CubeCorner(CubeHex hex, CornerDirection direction) {
 		_hex = hex;
 		_direction = direction;
 	}
 
-    public CubeCorner(int q, int r, Direction direction) {
+    public CubeCorner(int q, int r, CornerDirection direction) {
         _hex = new CubeHex(q, r);
         _direction = direction;
     }
 
-	// # Enums
-	public enum Direction { R, L };
-
     // # Properties
 	public CubeHex hex {
-		get { return _hex; }
+		get {
+            return _hex;
+        }
 	}
 
     public int q {
-        get { return _hex.q; }
+        get {
+            return _hex.q;
+        }
     }
 
     public int r {
-        get { return _hex.r; }
+        get {
+            return _hex.r;
+        }
     }
 
     public int s {
-        get { return _hex.s; }
+        get {
+            return _hex.s;
+        }
     }
 
-	public Direction direction {
-		get { return _direction; }
+	public CornerDirection direction {
+		get {
+            return _direction;
+        }
 	}
 
 	public Vector2 position {
-		get { return _hex.position + _Offsets[(int)_direction]; }
+		get {
+            return GetPosition();
+        }
 	}
 
     public List<CubeHex> touches {
         get {
-            var list_touches = new List<CubeHex>();
-            for (int i = 0; i < 3; i++) {
-                CubeHex offset = _Touches[i + 3*(int)_direction];
-                list_touches.Add(offset + _hex);
-            }
-            return list_touches;
+            return GetTouches();
         }
     }
 
     public List<CubeCorner> adjacent {
         get {
-            var list_adjacent = new List<CubeCorner>();
-            for (int i = 0; i < 3; i++) {
-                CubeCorner offset = _Adjacent[i + 3*(int)_direction];
-                list_adjacent.Add(new CubeCorner(_hex + offset._hex, offset._direction));
-            }
-            return list_adjacent;
+            return GetAdjacent();
         }
     }
 
@@ -99,6 +98,10 @@ public class CubeCorner {
 
     public static bool operator!=(CubeCorner a, CubeCorner b) {
         return a._hex != b._hex || a._direction != b._direction;
+    }
+
+    public static implicit operator GBTCorner(CubeCorner a) {
+        return a.GetGBT();
     }
 
     public override bool Equals(object obj) {
@@ -117,5 +120,31 @@ public class CubeCorner {
             result = result*496187739 + (int)_direction;
             return result;
         }
+    }
+
+    public Vector2 GetPosition() {
+        return _hex.position + _Offsets[(int)_direction];
+    }
+
+    public GBTCorner GetGBT() {
+        return new GBTCorner(_hex.GetGBT(), _direction);
+    }
+
+    public List<CubeCorner> GetAdjacent() {
+        var result = new List<CubeCorner>();
+        for (int i = 0; i < 3; i++) {
+            CubeCorner offset = _Adjacent[i + 3*(int)_direction];
+            result.Add(new CubeCorner(_hex + offset._hex, offset._direction));
+        }
+        return result;
+    }
+
+    public List<CubeHex> GetTouches() {
+        var result = new List<CubeHex>();
+        for (int i = 0; i < 3; i++) {
+            CubeHex offset = _Touches[i + 3*(int)_direction];
+            result.Add(offset + _hex);
+        }
+        return result;
     }
 }

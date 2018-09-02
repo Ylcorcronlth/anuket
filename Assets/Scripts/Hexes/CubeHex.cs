@@ -22,124 +22,17 @@ public struct CubeHex {
     };
 
     private static readonly CubeCorner[] _Corners = {
-        new CubeCorner(0, 0, CubeCorner.Direction.R),
-        new CubeCorner(1, 0, CubeCorner.Direction.L),
-        new CubeCorner(-1, 1, CubeCorner.Direction.R),
-        new CubeCorner(0, 0, CubeCorner.Direction.L),
-        new CubeCorner(-1, 0, CubeCorner.Direction.R),
-        new CubeCorner(1, -1, CubeCorner.Direction.L)
+        new CubeCorner(0, 0, CornerDirection.R),
+        new CubeCorner(1, 0, CornerDirection.L),
+        new CubeCorner(-1, 1, CornerDirection.R),
+        new CubeCorner(0, 0, CornerDirection.L),
+        new CubeCorner(-1, 0, CornerDirection.R),
+        new CubeCorner(1, -1, CornerDirection.L)
     };
 
     // Matrix for going Cube -> GBT.
     // Rotates and scales in order to remove the lowest digit from the cube coordinate.
     private static int _Ma = 2, _Mb = -1, _Mc = 1, _Md = 3, _Div = 7;
-
-    // Lookup table for going GBT -> Cube.
-    // Just a table of cube hex values corresponding to the digit in each possible location.
-    // In theory we could go up to 11 with a 32 bit integer, but it might be nice to have the
-    // extra bits for e.g. corners.
-    private static CubeHex[,] decode = new CubeHex[,]
-    {
-        { // 0
-            new CubeHex(0, 0, 0),
-            new CubeHex(1, 0, -1),
-            new CubeHex(-1, 1, 0),
-            new CubeHex(0, 1, -1),
-            new CubeHex(0, -1, 1),
-            new CubeHex(1, -1, 0),
-            new CubeHex(-1, 0, 1)
-        },
-        { // 1
-            new CubeHex(0, 0, 0),
-            new CubeHex(3, -1, -2),
-            new CubeHex(-2, 3, -1),
-            new CubeHex(1, 2, -3),
-            new CubeHex(-1, -2, 3),
-            new CubeHex(2, -3, 1),
-            new CubeHex(-3, 1, 2)
-        },
-        { // 2
-            new CubeHex(0, 0, 0),
-            new CubeHex(8, -5, -3),
-            new CubeHex(-3, 8, -5),
-            new CubeHex(5, 3, -8),
-            new CubeHex(-5, -3, 8),
-            new CubeHex(3, -8, 5),
-            new CubeHex(-8, 5, 3)
-        },
-        { // 3
-            new CubeHex(0, 0, 0),
-            new CubeHex(19, -18, -1),
-            new CubeHex(-1, 19, -18),
-            new CubeHex(18, 1, -19),
-            new CubeHex(-18, -1, 19),
-            new CubeHex(1, -19, 18),
-            new CubeHex(-19, 18, 1)
-        },
-        { // 4
-            new CubeHex(0, 0, 0),
-            new CubeHex(39, -55, 16),
-            new CubeHex(16, 39, -55),
-            new CubeHex(55, -16, -39),
-            new CubeHex(-55, 16, 39),
-            new CubeHex(-16, -39, 55),
-            new CubeHex(-39, 55, -16)
-        },
-        { // 5
-            new CubeHex(0, 0, 0),
-            new CubeHex(62, -149, 87),
-            new CubeHex(87, 62, -149),
-            new CubeHex(149, -87, -62),
-            new CubeHex(-149, 87, 62),
-            new CubeHex(-87, -62, 149),
-            new CubeHex(-62, 149, -87)
-        },
-        { // 6
-            new CubeHex(0, 0, 0),
-            new CubeHex(37, -360, 323),
-            new CubeHex(323, 37, -360),
-            new CubeHex(360, -323, -37),
-            new CubeHex(-360, 323, 37),
-            new CubeHex(-323, -37, 360),
-            new CubeHex(-37, 360, -323)
-        },
-        { // 7
-            new CubeHex(0, 0, 0),
-            new CubeHex(-249, -757, 1006),
-            new CubeHex(1006, -249, -757),
-            new CubeHex(757, -1006, 249),
-            new CubeHex(-757, 1006, -249),
-            new CubeHex(-1006, 249, 757),
-            new CubeHex(249, 757, -1006)
-        },
-        { // 8
-            new CubeHex(0, 0, 0),
-            new CubeHex(-1504, -1265, 2769),
-            new CubeHex(2769, -1504, -1265),
-            new CubeHex(1265, -2769, 1504),
-            new CubeHex(-1265, 2769, -1504),
-            new CubeHex(-2769, 1504, 1265),
-            new CubeHex(1504, 1265, -2769)
-        },
-        { // 9
-            new CubeHex(0, 0, 0),
-            new CubeHex(-5777, -1026, 6803),
-            new CubeHex(6803, -5777, -1026),
-            new CubeHex(1026, -6803, 5777),
-            new CubeHex(-1026, 6803, -5777),
-            new CubeHex(-6803, 5777, 1026),
-            new CubeHex(5777, 1026, -6803)
-        },
-        { // 10
-            new CubeHex(0, 0, 0),
-            new CubeHex(-18357, 3725, 14632),
-            new CubeHex(14632, -18357, 3725),
-            new CubeHex(-3725, -14632, 18357),
-            new CubeHex(3725, 14632, -18357),
-            new CubeHex(-14632, 18357, -3725),
-            new CubeHex(18357, -3725, -14632)
-        }
-    };
 
     // The three coordinates of the hex. q + r + s == 0.
     // The basis vectors are oriented 120 degrees from each other, with
@@ -176,22 +69,13 @@ public struct CubeHex {
 
     public List<CubeHex> neighbors {
         get {
-            var list_neighbors = new List<CubeHex>(6);
-            for (int i = 0; i < 6; i++) {
-                list_neighbors.Add(this + _Neighbors[i]);
-            }
-            return list_neighbors;
+            return GetNeighbors();
         }
     }
 
     public List<CubeCorner> corners {
         get {
-            var list_corners = new List<CubeCorner>(6);
-            for (int i = 0; i < 6; i++) {
-                CubeCorner offset = _Corners[i];
-                list_corners.Add(new CubeCorner(this + offset.hex, offset.direction));
-            }
-            return list_corners;
+            return GetCorners();
         }
     }
 
@@ -199,12 +83,6 @@ public struct CubeHex {
     public Vector2 position {
         get {
             return GetPosition();
-        }
-    }
-
-    public int index {
-        get {
-            return GetGBT();
         }
     }
 
@@ -252,12 +130,12 @@ public struct CubeHex {
         return new FractionalCube(a._q, a._r, a._s);
     }
 
-    public static explicit operator int(CubeHex a) {
+    public static implicit operator GBTHex(CubeHex a) {
         return a.GetGBT();
     }
 
-    public static explicit operator Vector2(CubeHex a) {
-        return a.GetPosition();
+    public static explicit operator int(CubeHex a) {
+        return a.GetGBT().value;
     }
 
     public override bool Equals(object obj) {
@@ -286,27 +164,7 @@ public struct CubeHex {
         return new Vector2(_QX*q, _QY*q + _RY*_r);
     }
 
-    public static CubeHex FromCartesian(Vector2 position) {
-        return FractionalCube.FromCartesian(position).GetRounded();
-    }
-
-    public static CubeHex FromCartesian(float x, float y) {
-        return new CubeHex();
-    }
-
-    public static CubeHex FromGBT(int value) {
-        CubeHex pos = new CubeHex(0, 0, 0);
-        int i = 0;
-        while (value > 0) {
-            int k = value % 7;
-            value /= 7;
-            pos += decode[i, k];
-            i += 1;
-        }
-        return pos;
-    }
-
-    public int GetGBT() {
+    public GBTHex GetGBT() {
         int value = 0;
         int q = _q, r = _r;
         int magnitude = 1;
@@ -319,6 +177,31 @@ public struct CubeHex {
             r = (_Mc*qn + _Md*rn)/_Div;
             magnitude *= 7;
         }
-        return value;
+        return new GBTHex(value);
+    }
+
+    public static CubeHex FromCartesian(Vector2 position) {
+        return FractionalCube.FromCartesian(position).GetRounded();
+    }
+
+    public static CubeHex FromGBT(int value) {
+        return new GBTHex(value).GetCube();
+    }
+
+    public List<CubeHex> GetNeighbors() {
+        var result = new List<CubeHex>(6);
+        for (int i = 0; i < 6; i++) {
+            result.Add(this + _Neighbors[i]);
+        }
+        return result;
+    }
+
+    public List<CubeCorner> GetCorners() {
+        var result = new List<CubeCorner>(6);
+        for (int i = 0; i < 6; i++) {
+            CubeCorner offset = _Corners[i];
+            result.Add(new CubeCorner(this + offset.hex, offset.direction));
+        }
+        return result;
     }
 }
