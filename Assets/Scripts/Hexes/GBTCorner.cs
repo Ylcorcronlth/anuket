@@ -39,6 +39,12 @@ public struct GBTCorner {
         }
     }
 
+    public Vector2 position {
+        get {
+            return GetPosition();
+        }
+    }
+
     // Constructor
     public GBTCorner(GBTHex hex, CornerDirection direction) {
         // Value needs to be <= CornerMask.
@@ -105,5 +111,9 @@ public struct GBTCorner {
             result.Add(this.hex + _Touches[i + 3*((_value & Left) >> 29)]);
         }
         return result;
+    }
+
+    public override string ToString() {
+        return (_value & HexMask).ToString() + ((_value & CornerMask) > 0 ? "L" : "R");
     }
 }

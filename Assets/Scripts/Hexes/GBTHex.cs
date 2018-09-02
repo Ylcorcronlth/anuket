@@ -200,13 +200,19 @@ public struct GBTHex {
         }
     }
 
+    public Vector2 position {
+        get {
+            return GetPosition();
+        }
+    }
+
     // Methods
     public static GBTHex operator+(GBTHex a, GBTHex b) {
         int carry = 0;
         int result = 0;
         int magnitude = 1;
         int x = a.value, y = b.value;
-        while ((x > 0 & y > 0) | carry > 0) {
+        while (x > 0 | y > 0 | carry > 0) {
             int s = Addition[carry, Utils.Mod(x, 7), Utils.Mod(y, 7)];
             carry = s/7;
             result += magnitude*(s % 7);
@@ -214,7 +220,7 @@ public struct GBTHex {
             x = x/7;
             y = y/7;
         }
-        return new GBTHex(result + x + y);
+        return new GBTHex(result);
     }
 
     public static GBTHex operator-(GBTHex a, GBTHex b) {
@@ -296,5 +302,9 @@ public struct GBTHex {
             result.Add(new GBTCorner(this + new GBTHex(_Corners[i]), (i % 2 == 0 ? CornerDirection.R : CornerDirection.L)));
         }
         return result;
+    }
+
+    public override string ToString() {
+        return _value.ToString();
     }
 }
