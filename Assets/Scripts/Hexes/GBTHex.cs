@@ -307,4 +307,8 @@ public struct GBTHex {
     public override string ToString() {
         return _value.ToString();
     }
+
+    public static GBTHex FromCartesian(Vector2 position) {
+        return (GBTHex)CubeHex.FromCartesian(position);
+    }
 }

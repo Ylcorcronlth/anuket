@@ -2,63 +2,52 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(GenerateIsland))]
 public class DrawPolygons : MonoBehaviour {
-	public Color LandColor, WaterColor;
-	public int PolygonsPerMesh = 2000;
+	public Color DefaultColor = Color.magenta;
 	public Material material;
-
-	private IslandData Data;
 
 	private static List<Vector3> vertices = new List<Vector3>();
 	private static List<int> triangles = new List<int>();
 	private static List<Color> colors = new List<Color>();
 
-	void Awake() {
-		Data = GetComponent<IslandData>();
+	private Dictionary<int, GameObject> Chunks;
+
+	public void Awake() {
+		Chunks = new Dictionary<int, GameObject>();
 	}
 
-	// Use this for initialization
-	void Start() {
-		GetComponent<GenerateIsland>().Generate();
-		int start = 0;
-		while (start <= Data.Map.Polygons.Count) {
-			TriangulateMesh(start, Mathf.Min(Data.Map.Polygons.Count, start + PolygonsPerMesh));
-			start += PolygonsPerMesh;
+	public void DrawChunks(List<ChunkData> chunks) {
+		foreach (ChunkData chunk in chunks) {
+			DrawChunk(chunk);
 		}
 	}
 
-	private void TriangulateMesh(int start, int end) {
-		for (int i = start; i < end; i++) {
-			TriangulatePolygon(Data.Map.Polygons[i]);
+	private void DrawChunk(ChunkData chunk_data) {
+		GameObject chunk;
+		if (Chunks.TryGetValue(chunk_data.ChunkID, out chunk)) {
+			GameObject.Destroy(chunk);
 		}
 
-		FinalizeMesh();
-		vertices.Clear();
-		triangles.Clear();
-		colors.Clear();
+		for (int i = 0; i < chunk_data.ChunkSize; i++) {
+			TriangulateHex(new GBTHex(i), chunk_data.GetColors(i));
+		}
+
+		chunk = FinalizeMesh("Chunk (" + (chunk_data.ChunkID).ToString() + ")");
+		chunk.transform.localPosition = new GBTHex(chunk_data.ChunkID*chunk_data.ChunkSize).position;
+		Chunks[chunk_data.ChunkID] = chunk;
 	}
 
-	private void TriangulatePolygon(Polygon polygon) {
-		Color c1, c2, c3;
-		var corners = new List<Vertex>();
-
-		foreach (int vertex in polygon.corners) {
-			corners.Add(Data.Map.Vertices[vertex]);
+	private void TriangulateHex(GBTHex hex, Color[] colors) {
+		if (colors == null) {
+			return;
 		}
-
+		Vector2 center = hex.position;
+		var corners = hex.GetCorners();
 		for (int i = 0; i < corners.Count; i++) {
-			int inext = Utils.Mod(i + 1, corners.Count);
-			if (Data.LandMaskPolygons[polygon.index]) {
-				c1 = Grayscale(Data.ElevationPolygons[polygon.index]);
-				c2 = Grayscale(Data.ElevationVertices[corners[inext].index]);
-				c3 = Grayscale(Data.ElevationVertices[corners[i].index]);
-			} else {
-				c1 = WaterColor;
-				c2 = WaterColor;
-				c3 = WaterColor;
-			}
-			CreateTriangle(polygon.position, c1, corners[inext].position, c2, corners[i].position, c3);
+			int inext = (i + 1) % 6;
+			GBTCorner first = corners[i];
+			GBTCorner second = corners[inext];
+			CreateTriangle(center, colors[0], second.position, colors[inext + 1], first.position, colors[i + 1]);
 		}
 	}
 
@@ -77,13 +66,13 @@ public class DrawPolygons : MonoBehaviour {
 		colors.Add(c3);
 	}
 
-	private void FinalizeMesh() {
+	private GameObject FinalizeMesh(string name) {
 		// Attach the mesh to a new GameObject.
-		GameObject polygons = new GameObject();
-		polygons.name = "Hexes";
-		polygons.transform.parent = transform;
-		Mesh mesh = polygons.AddComponent<MeshFilter>().mesh = new Mesh();
-		polygons.AddComponent<MeshRenderer>().material = material;
+		GameObject chunk = new GameObject();
+		chunk.name = name;
+		chunk.transform.parent = transform;
+		Mesh mesh = chunk.AddComponent<MeshFilter>().mesh = new Mesh();
+		chunk.AddComponent<MeshRenderer>().material = material;
 
 		// Move the data to the mesh and prepare the mesh for rendering.
 		mesh.Clear();
@@ -91,9 +80,13 @@ public class DrawPolygons : MonoBehaviour {
 		mesh.colors = colors.ToArray();
 		mesh.triangles = triangles.ToArray();
 		mesh.RecalculateNormals();
-	}
 
-	private Color Grayscale(float value) {
-		return new Color(value, value, value, 1.0f);
+		// Clear lists.
+		vertices.Clear();
+		triangles.Clear();
+		colors.Clear();
+
+		// Return.
+		return chunk;
 	}
 }
