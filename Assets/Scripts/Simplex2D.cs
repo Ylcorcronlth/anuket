@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Simplex2D {
-	public int Iterations = 4;
-
     private static float SQRT3 = 1.732050807568877293527446341505872366942805253810380628055f;
     private static float MAXVAL = 0.62f;
     private static float RADIUS = 0.866f;
