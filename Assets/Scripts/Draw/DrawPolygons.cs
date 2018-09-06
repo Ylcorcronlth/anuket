@@ -70,7 +70,7 @@ public class DrawPolygons : MonoBehaviour {
 		// Attach the mesh to a new GameObject.
 		GameObject chunk = new GameObject();
 		chunk.name = name;
-		chunk.transform.parent = transform;
+		chunk.transform.SetParent(transform, false);
 		Mesh mesh = chunk.AddComponent<MeshFilter>().mesh = new Mesh();
 		chunk.AddComponent<MeshRenderer>().material = material;
 

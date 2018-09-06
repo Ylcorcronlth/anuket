@@ -100,7 +100,7 @@ public struct GBTCorner {
         for (int i = 0; i < 3; i++) {
             GBTCorner corner = _Adjacent[i + 3*((_value & Left) >> 29)];
             GBTHex new_hex = new GBTHex(_value & HexMask) + new GBTHex(corner._value & HexMask);
-            result.Add(new GBTCorner(new_hex, ((corner._value & CornerMask) > 0 ? CornerDirection.L : CornerDirection.R)));
+            result.Add(new GBTCorner(new_hex, ((corner._value & Left) > 0 ? CornerDirection.L : CornerDirection.R)));
         }
         return result;
     }
@@ -114,6 +114,10 @@ public struct GBTCorner {
     }
 
     public override string ToString() {
-        return (_value & HexMask).ToString() + ((_value & CornerMask) > 0 ? "L" : "R");
+        return (_value & HexMask).ToString() + ((_value & Left) > 0 ? "L" : "R");
+    }
+
+    public bool isValid() {
+        return _value >= 0;
     }
 }

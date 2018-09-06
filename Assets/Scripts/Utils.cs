@@ -89,6 +89,16 @@ public class Utils
 		}
 	}
 
+	public static float Clamp(float t) {
+		if (t > 1.0f) {
+			return 1.0f;
+		} else if (t < 0.0f) {
+			return 0.0f;
+		} else {
+			return t;
+		}
+	}
+
 	public static int Pow(int base_, int exponent) {
 		// Compute the integer power of an integer base.
 		int value = 1;

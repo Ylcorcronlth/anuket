@@ -311,4 +311,8 @@ public struct GBTHex {
     public static GBTHex FromCartesian(Vector2 position) {
         return (GBTHex)CubeHex.FromCartesian(position);
     }
+
+    public bool isValid() {
+        return _value >= 0;
+    }
 }
